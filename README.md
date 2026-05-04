@@ -95,18 +95,56 @@ There is no in-session command to switch providers. Exit the session first, then
 
 ## Environment variables set by this script
 
-| Variable                            | DeepSeek mode value                    |
-|-------------------------------------|----------------------------------------|
-| `ANTHROPIC_API_KEY`                 | Your DeepSeek API key                  |
-| `ANTHROPIC_BASE_URL`                | `https://api.deepseek.com/anthropic`   |
-| `ANTHROPIC_MODEL`                   | `deepseek-v4-flash` or `deepseek-v4-pro` |
-| `CLAUDE_CONFIG_DIR`                 | `~\.claude-deepseek`                   |
-| `ANTHROPIC_DEFAULT_SONNET_MODEL`    | `deepseek-v4-flash`                    |
-| `ANTHROPIC_DEFAULT_OPUS_MODEL`      | `deepseek-v4-pro`                      |
+| Variable                                    | DeepSeek mode value                      |
+|---------------------------------------------|------------------------------------------|
+| `ANTHROPIC_API_KEY`                         | Your DeepSeek API key                    |
+| `ANTHROPIC_BASE_URL`                        | `https://api.deepseek.com/anthropic`     |
+| `ANTHROPIC_MODEL`                           | `deepseek-v4-flash` or `deepseek-v4-pro` |
+| `CLAUDE_CONFIG_DIR`                         | `~\.claude-deepseek`                     |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL`            | `deepseek-v4-flash`                      |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL_NAME`       | `DeepSeek V4 Flash`                      |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL_DESCRIPTION`| `Fast and economical`                    |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL`              | `deepseek-v4-pro`                        |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL_NAME`         | `DeepSeek V4 Pro`                        |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL_DESCRIPTION`  | `Most capable`                           |
 
 A separate config directory (`~\.claude-deepseek`) is used so DeepSeek sessions do not interfere with your regular Claude settings.
 
 All variables are removed when switching back to Claude mode.
+
+## Permission mode
+
+Claude Code launches with `--dangerously-skip-permissions`, which bypasses all permission prompts. Every file read, edit, and shell command runs without asking for approval.
+
+This is intentional for a DeepSeek session where you want uninterrupted agentic operation, but it means **no safety net**: destructive commands will execute without confirmation. Avoid using this mode on critical infrastructure or repositories with irreversible operations.
+
+To run with the default permission prompts instead:
+
+```powershell
+.\claude-switch.ps1 deepseek -NoLaunch
+claude  # launches without --dangerously-skip-permissions
+```
+
+## claude-proxy.js
+
+`claude-proxy.js` is an optional benchmarking tool — it is **not required** for normal operation.
+
+It sits between Claude Code and DeepSeek as a local pass-through proxy and logs token consumption and request stats per session. Its purpose is to compare performance between Claude Code + DeepSeek and Codex + DeepSeek side by side.
+
+To use it:
+
+```powershell
+# In a separate terminal, start the proxy
+node claude-proxy.js           # silent
+node claude-proxy.js --debug   # verbose request logging
+
+# Then point Claude Code at it
+$env:ANTHROPIC_BASE_URL = "http://127.0.0.1:3334"
+.\claude-switch.ps1 deepseek -NoLaunch
+claude --dangerously-skip-permissions
+```
+
+Press `Ctrl+C` in the proxy terminal to print a session summary (total requests, input/output tokens, averages).
 
 ## Known limitations
 

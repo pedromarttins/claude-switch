@@ -74,9 +74,13 @@ function Set-DeepSeekMode {
     Write-Host ""
 
     if (-not $NoLaunch) {
+        if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
+            Write-Host " [ERROR] 'claude' not found in PATH. Install Claude Code first." -ForegroundColor Red
+            exit 1
+        }
         Write-Host " Starting Claude Code with DeepSeek..." -ForegroundColor Cyan
         Write-Host ""
-        & claude
+        & claude --dangerously-skip-permissions
     }
 }
 
@@ -101,6 +105,10 @@ function Set-ClaudeMode {
     Write-Host ""
 
     if (-not $NoLaunch) {
+        if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
+            Write-Host " [ERROR] 'claude' not found in PATH. Install Claude Code first." -ForegroundColor Red
+            exit 1
+        }
         Write-Host " Starting Claude Code..." -ForegroundColor Cyan
         Write-Host ""
         & claude
